@@ -1,2 +1,0 @@
-# pirates
-non fungible tokens
