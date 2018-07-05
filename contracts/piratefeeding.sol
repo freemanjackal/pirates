@@ -1,8 +1,9 @@
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.20;
 
 import "./piratefactory.sol";
 
 contract KittyInterface {
+  //delete view
   function getKitty(uint256 _id) external view returns (
     bool isGestating,
     bool isReady,
@@ -34,6 +35,7 @@ contract PirateFeeding is PirateFactory {
     _pirate.readyTime = uint32(now + cooldownTime);
   }
 
+//delete view
   function _isReady(Pirate storage _pirate) internal view returns (bool) {
       return (_pirate.readyTime <= now);
   }

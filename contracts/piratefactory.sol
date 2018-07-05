@@ -1,4 +1,4 @@
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.20;
 
 import "./ownable.sol";
 import "./safemath.sol";
@@ -31,9 +31,10 @@ contract PirateFactory is Ownable {
     uint id = pirates.push(Pirate(_name, _dna, 1, uint32(now + cooldownTime), 0, 0)) - 1;
     pirateToOwner[id] = msg.sender;
     ownerPirateCount[msg.sender]++;
-    NewPirate(id, _name, _dna);
+    emit NewPirate(id, _name, _dna);
   }
 
+//delete view
   function _generateRandomDna(string _str) private view returns (uint) {
     uint rand = uint(keccak256(_str));
     return rand % dnaModulus;

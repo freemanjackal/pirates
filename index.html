@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoPirates front-end</title>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="cryptopirates_abi.js"></script>
+  </head>
+  <body>
+    <div id="txStatus"></div>
+    <div id="pirates"></div>
+
+    <script>
+      var cryptoPirates;
+      var userAccount;
+
+      function startApp() {
+        var cryptoPiratesAddress = "YOUR_CONTRACT_ADDRESS";
+        cryptoPirates = new web3js.eth.Contract(cryptoPiratesABI, cryptoPiratesAddress);
+
+        var accountInterval = setInterval(function() {
+          // Check if account has changed
+          if (web3.eth.accounts[0] !== userAccount) {
+            userAccount = web3.eth.accounts[0];
+            // Call a function to update the UI with the new account
+            getPiratesByOwner(userAccount)
+            .then(displayPirates);
+          }
+        }, 100);
+
+        // Start here
+      }
+
+      function displayPirates(ids) {
+        $("#pirates").empty();
+        for (id of ids) {
+          // Look up pirate details from our contract. Returns a `pirate` object
+          getPirateDetails(id)
+          .then(function(pirate) {
+            // Using ES6's "template literals" to inject variables into the HTML.
+            // Append each one to our #pirates div
+            $("#pirates").append(`<div class="pirate">
+              <ul>
+                <li>Name: ${pirate.name}</li>
+                <li>DNA: ${pirate.dna}</li>
+                <li>Level: ${pirate.level}</li>
+                <li>Wins: ${pirate.winCount}</li>
+                <li>Losses: ${pirate.lossCount}</li>
+                <li>Ready Time: ${pirate.readyTime}</li>
+              </ul>
+            </div>`);
+          });
+        }
+      }
+
+      function createRandomPirate(name) {
+        // This is going to take a while, so update the UI to let the user know
+        // the transaction has been sent
+        $("#txStatus").text("Creating new pirate on the blockchain. This may take a while...");
+        // Send the tx to our contract:
+        return CryptoPirates.methods.createRandomPirate(name)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Successfully created " + name + "!");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+          getPiratesByOwner(userAccount).then(displayPirates);
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });
+      }
+
+      function feedOnKitty(pirateId, kittyId) {
+        $("#txStatus").text("Eating a kitty. This may take a while...");
+        return CryptoPirates.methods.feedOnKitty(pirateId, KittyId)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Ate a kitty and spawned a new Pirate!");
+          getPiratesByOwner(userAccount).then(displayPirates);
+        })
+        .on("error", function(error) {
+          $("#txStatus").text(error);
+        });
+      }
+
+      function levelUp(pirateId) {
+        $("#txStatus").text("Leveling up your pirate...");
+        return CryptoPirates.methods.levelUp(pirateId)
+        .send({ from: userAccount, value: web3.utils.toWei("0.001") })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Power overwhelming! Pirate successfully leveled up");
+        })
+        .on("error", function(error) {
+          $("#txStatus").text(error);
+        });
+      }
+
+      function getPirateDetails(id) {
+        return cryptoPirates.methods.pirates(id).call()
+      }
+
+      function pirateToOwner(id) {
+        return cryptoPirates.methods.pirateToOwner(id).call()
+      }
+
+      function getPiratesByOwner(owner) {
+        return cryptoPirates.methods.getPiratesByOwner(owner).call()
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+    </script>
+  </body>
+</html>

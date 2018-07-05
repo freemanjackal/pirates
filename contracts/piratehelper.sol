@@ -1,4 +1,4 @@
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.20;
 
 import "./piratefeeding.sol";
 
@@ -12,7 +12,7 @@ contract PirateHelper is PirateFeeding {
   }
 
   function withdraw() external onlyOwner {
-    owner.transfer(this.balance);
+    owner.transfer(address(this).balance);
   }
 
   function setLevelUpFee(uint _fee) external onlyOwner {
@@ -32,6 +32,7 @@ contract PirateHelper is PirateFeeding {
     pirates[_pirateId].dna = _newDna;
   }
 
+//delete view
   function getPiratesByOwner(address _owner) external view returns(uint[]) {
     uint[] memory result = new uint[](ownerPirateCount[_owner]);
     uint counter = 0;
