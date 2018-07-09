@@ -7,20 +7,20 @@ module.exports = function(deployer) {
   deployer.deploy(MetaCoin);
 };*/
 
-var erc721 = artifacts.require("./ERC721.sol");
+var safemath = artifacts.require("./SafeMath.sol");
+//var erc721 = artifacts.require("./ERC721.sol");
 var ownable = artifacts.require("./Ownable.sol");
 var pirateattack = artifacts.require("./PirateAttack.sol");
 var piratefactory = artifacts.require("./PirateFactory.sol");
 var piratefeeding = artifacts.require("./PirateFeeding.sol");
 var piratehelper = artifacts.require("./PirateHelper.sol");
 var pirateownership = artifacts.require("./PirateOwnership.sol");
-var safemath = artifacts.require("./SafeMath.sol");
 
 module.exports = function(deployer) {
   deployer.deploy(safemath);
   //deployer.link(ConvertLib, MetaCoin);
   deployer.deploy(ownable);
-  deployer.deploy(erc721);
+  //deployer.deploy(erc721);
   
   deployer.deploy(piratefactory);
   deployer.deploy(piratefeeding);

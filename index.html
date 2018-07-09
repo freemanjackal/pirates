@@ -5,21 +5,47 @@
     <title>CryptoPirates front-end</title>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
     <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <!--script language="javascript" type="text/javascript" src="web3.min.js"></script-->
     <script language="javascript" type="text/javascript" src="cryptopirates_abi.js"></script>
   </head>
   <body>
     <div id="txStatus"></div>
     <div id="pirates"></div>
-
+    <button id="createpirate" type="button">create</button>
+    <button id="details" type="button">List pirates</button>
     <script>
+
+      //https://github.com/ethereum/wiki/wiki/JavaScript-API#getting-started
       var cryptoPirates;
       var userAccount;
+      $('#createpirate').click(function(){
+        //balance = web3js.eth.getBalance(web3js.eth.accounts[0]);
+        
+        var version = web3js.version.api;
+        alert(version);
+        var gas = web3js.eth.gasPrice;
+        alert(gas)
+       createRandomPirate(makeName());
+      })
+      $('#details').click(function(){
+        //alert(userAccount);
+        var data = getPiratesByOwner(web3js.eth.accounts[0]);
+        console.log(data);
+      })
+      function makeName() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
+        for (var i = 0; i < 5; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
+      }
       function startApp() {
-        var cryptoPiratesAddress = "0xddc926a5aae15804db873b0582c5e5b29ee81ec3";//"YOUR_CONTRACT_ADDRESS";
+        var cryptoPiratesAddress = "0x82f5477a5fc5adafc472c1d3ffedbb11748b7ff2";//"YOUR_CONTRACT_ADDRESS";
         var cryptoPiratesABI = [
-        {"constant": false,
+      {
+          "constant": false,
       "inputs": [
         {
           "name": "_pirateId",
@@ -433,22 +459,23 @@
     }
   ];
         web3js.eth.defaultAccount = web3js.eth.accounts[0];
-        alert(web3js.eth.defaultAccount);
-        //cryptoPirates = web3js.eth.Contract(cryptoPiratesABI);
-
+       // alert(web3js.eth.defaultAccount);
+        cryptoPirates  = web3js.eth.contract(cryptoPiratesABI).at(cryptoPiratesAddress);
+        //cryptoPirates = web3js.eth.Contract(cryptoPiratesABI, cryptoPiratesAddress);
         var accountInterval = setInterval(function() {
           // Check if account has changed
           if (web3js.eth.accounts[0] !== userAccount) {
             userAccount = web3js.eth.accounts[0];
             // Call a function to update the UI with the new account
-            getPiratesByOwner(userAccount)
-            .then(displayPirates);
+            pirate = getPiratesByOwner(userAccount);
+            displayPirates(pirate);
+            //return cryptoPirates.getPiratesByOwner(userAccount).call()
           }
-        }, 100);
+        }, 1000);
 
         // Start here
       }
-
+   // var Web3 = require('web3');
       function displayPirates(ids) {
         $("#pirates").empty();
         for (id of ids) {
@@ -476,9 +503,12 @@
         // the transaction has been sent
         $("#txStatus").text("Creating new pirate on the blockchain. This may take a while...");
         // Send the tx to our contract:
-        return CryptoPirates.methods.createRandomPirate(name)
-        .send({ from: userAccount })
-        .on("receipt", function(receipt) {
+        /*var originalBalance = web3js.eth.getBalance(userAccount).toNumber();
+        alert(originalBalance);*/
+        var json = cryptoPirates.balanceOf(web3js.eth.accounts[0])
+        console.log(JSON.parse(json));
+        return cryptoPirates.createRandomPirate(name, { from: web3js.eth.accounts[1], gas: 3000000})
+        /*.on("receipt", function(receipt) {
           $("#txStatus").text("Successfully created " + name + "!");
           // Transaction was accepted into the blockchain, let's redraw the UI
           getPiratesByOwner(userAccount).then(displayPirates);
@@ -486,12 +516,12 @@
         .on("error", function(error) {
           // Do something to alert the user their transaction has failed
           $("#txStatus").text(error);
-        });
+        });*/
       }
 
       function feedOnKitty(pirateId, kittyId) {
         $("#txStatus").text("Eating a kitty. This may take a while...");
-        return CryptoPirates.methods.feedOnKitty(pirateId, KittyId)
+        return cryptoPirates.methods.feedOnKitty(pirateId, KittyId)
         .send({ from: userAccount })
         .on("receipt", function(receipt) {
           $("#txStatus").text("Ate a kitty and spawned a new Pirate!");
@@ -504,7 +534,7 @@
 
       function levelUp(pirateId) {
         $("#txStatus").text("Leveling up your pirate...");
-        return CryptoPirates.methods.levelUp(pirateId)
+        return cryptoPirates.methods.levelUp(pirateId)
         .send({ from: userAccount, value: web3.utils.toWei("0.001") })
         .on("receipt", function(receipt) {
           $("#txStatus").text("Power overwhelming! Pirate successfully leveled up");
@@ -515,15 +545,16 @@
       }
 
       function getPirateDetails(id) {
-        return cryptoPirates.methods.pirates(id).call()
+        return cryptoPirates.pirates(id);
       }
 
       function pirateToOwner(id) {
-        return cryptoPirates.methods.pirateToOwner(id).call()
+        return cryptoPirates.pirateToOwner(id).call()
       }
 
       function getPiratesByOwner(owner) {
-        return cryptoPirates.methods.getPiratesByOwner(owner).call()
+        //alert("hola");
+        return cryptoPirates.getPiratesByOwner(owner);
       }
 
       window.addEventListener('load', function() {

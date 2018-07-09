@@ -1,4 +1,4 @@
-var MetaCoin = artifacts.require("./MetaCoin.sol");
+/*var MetaCoin = artifacts.require("./MetaCoin.sol");
 
 contract('MetaCoin', function(accounts) {
   it("should put 10000 MetaCoin in the first account", function() {
@@ -61,3 +61,26 @@ contract('MetaCoin', function(accounts) {
     });
   });
 });
+*/
+
+var ownership = artifacts.require("./PirateOwnership.sol");
+
+contract('ownership', function(accounts) {
+  it("should put 10000 MetaCoin in the first account", function() {
+    return ownership.deployed().then(function(instance) {
+      //return instance.getPiratesByOwner.call(accounts[0]);
+      return instance.createRandomPirate("lolo");
+    }).then(function(value) {
+      console.log(value);
+    });
+  });
+  it("test creation", function() {
+    return ownership.deployed().then(function(instance) {
+      return instance.getPiratesByOwner.call(accounts[0]);
+      
+    }).then(function(value) {
+      console.log(value);
+    });
+  });
+
+})

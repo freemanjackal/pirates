@@ -1,12 +1,14 @@
 pragma solidity ^0.4.20;
 
 import "./pirateattack.sol";
-import "./erc721.sol";
+//import "./erc721.sol";
 import "./safemath.sol";
 
-contract PirateOwnership is PirateAttack, ERC721 {
+contract PirateOwnership is PirateAttack {
 
   using SafeMath for uint256;
+  event Transfer(address indexed _from, address indexed _to, uint256 _tokenId);
+  event Approval(address indexed _owner, address indexed _approved, uint256 _tokenId);
 
   mapping (uint => address) pirateApprovals;
 //delete view
