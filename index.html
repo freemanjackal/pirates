@@ -22,15 +22,13 @@
         //balance = web3js.eth.getBalance(web3js.eth.accounts[0]);
         
         var version = web3js.version.api;
-        alert(version);
         var gas = web3js.eth.gasPrice;
-        alert(gas)
        createRandomPirate(makeName());
       })
       $('#details').click(function(){
         //alert(userAccount);
         var data = getPiratesByOwner(web3js.eth.accounts[0]);
-        console.log(data);
+        //console.log(data);
       })
       function makeName() {
         var text = "";
@@ -42,7 +40,7 @@
         return text;
       }
       function startApp() {
-        var cryptoPiratesAddress = "0x82f5477a5fc5adafc472c1d3ffedbb11748b7ff2";//"YOUR_CONTRACT_ADDRESS";
+        var cryptoPiratesAddress = "0xb8f871857bec65cf592083833bfa76d0a1dc1c12";//"YOUR_CONTRACT_ADDRESS";
         var cryptoPiratesABI = [
       {
           "constant": false,
@@ -467,8 +465,8 @@
           if (web3js.eth.accounts[0] !== userAccount) {
             userAccount = web3js.eth.accounts[0];
             // Call a function to update the UI with the new account
-            pirate = getPiratesByOwner(userAccount);
-            displayPirates(pirate);
+           // pirate = getPiratesByOwner(userAccount);
+            //displayPirates(pirate);
             //return cryptoPirates.getPiratesByOwner(userAccount).call()
           }
         }, 1000);
@@ -479,9 +477,10 @@
       function displayPirates(ids) {
         $("#pirates").empty();
         for (id of ids) {
+          console.log(id);
           // Look up pirate details from our contract. Returns a `pirate` object
-          getPirateDetails(id)
-          .then(function(pirate) {
+         /*var pirate = getPirateDetails(id, function(pirate){
+            console.log("dddddddddddddd");
             // Using ES6's "template literals" to inject variables into the HTML.
             // Append each one to our #pirates div
             $("#pirates").append(`<div class="pirate">
@@ -494,8 +493,36 @@
                 <li>Ready Time: ${pirate.readyTime}</li>
               </ul>
             </div>`);
-          });
+          });*/
+          var pirate = getPirateDetails(id,test);
+            console.log("dddddddddddddd");
+            // Using ES6's "template literals" to inject variables into the HTML.
+            // Append each one to our #pirates div
+           /* $("#pirates").append(`<div class="pirate">
+              <ul>
+                <li>Name: ${pirate.name}</li>
+                <li>DNA: ${pirate.dna}</li>
+                <li>Level: ${pirate.level}</li>
+                <li>Wins: ${pirate.winCount}</li>
+                <li>Losses: ${pirate.lossCount}</li>
+                <li>Ready Time: ${pirate.readyTime}</li>
+              </ul>
+            </div>`);*/
+          //});
         }
+      }
+      function test(pirate){
+        console.log("aaa");
+          $("#pirates").append(`<div class="pirate">
+              <ul>
+                <li>Name: ${pirate.name}</li>
+                <li>DNA: ${pirate.dna}</li>
+                <li>Level: ${pirate.level}</li>
+                <li>Wins: ${pirate.winCount}</li>
+                <li>Losses: ${pirate.lossCount}</li>
+                <li>Ready Time: ${pirate.readyTime}</li>
+              </ul>
+            </div>`);
       }
 
       function createRandomPirate(name) {
@@ -507,7 +534,12 @@
         alert(originalBalance);*/
         var json = cryptoPirates.balanceOf(web3js.eth.accounts[0])
         console.log(JSON.parse(json));
-        return cryptoPirates.createRandomPirate(name, { from: web3js.eth.accounts[1], gas: 3000000})
+        cryptoPirates.createRandomPirate(name, { from: web3js.eth.accounts[0], gas: 3000000}, function(err, result){ 
+          if(!err)
+            console.log(getPiratesByOwner(web3js.eth.accounts[0]));
+
+        });
+        //return cryptoPirates.createRandomPirate(name, { from: web3js.eth.accounts[0], gas: 3000000})
         /*.on("receipt", function(receipt) {
           $("#txStatus").text("Successfully created " + name + "!");
           // Transaction was accepted into the blockchain, let's redraw the UI
@@ -544,8 +576,23 @@
         });
       }
 
-      function getPirateDetails(id) {
-        return cryptoPirates.pirates(id);
+       function getPirateDetails(id, callback) {
+        cryptoPirates.pirates(id, { from: web3js.eth.accounts[0], gas: 3000000}, function(err, result){ 
+          if(!err){
+            //displayPirates(result);
+            console.log("getPirateDetails");
+            console.log(result);
+            return result;
+          }
+          if(err){
+            //displayPirates(result);
+            console.log("error");
+           //return result;
+          }
+
+
+        });
+       // return cryptoPirates.pirates(id);
       }
 
       function pirateToOwner(id) {
@@ -554,7 +601,16 @@
 
       function getPiratesByOwner(owner) {
         //alert("hola");
-        return cryptoPirates.getPiratesByOwner(owner);
+        //return cryptoPirates.getPiratesByOwner(owner);
+        cryptoPirates.getPiratesByOwner(owner, { from: web3js.eth.accounts[0], gas: 3000000}, function(err, result){ 
+          if(!err){
+            console.log("getPiratesByOwner");
+            console.log(result);
+            displayPirates(result);
+            
+          }
+
+        });
       }
 
       window.addEventListener('load', function() {
