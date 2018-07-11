@@ -47,5 +47,9 @@ contract PirateFactory is Ownable {
     _createPirate(_name, randDna);
   }
 
+  function getPiratesLenght() public view returns (uint) {
+     return pirates.length;
+ }
+
 }
 

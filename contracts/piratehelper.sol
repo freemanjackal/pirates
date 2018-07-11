@@ -45,5 +45,6 @@ contract PirateHelper is PirateFeeding {
     return result;
   }
 
+
 }
 
