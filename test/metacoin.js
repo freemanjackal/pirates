@@ -82,5 +82,26 @@ contract('ownership', function(accounts) {
       console.log(value);
     });
   });
+  it("test attack", async function() {
+    /*return ownership.deployed().then(function(instance) {
+      await instance.createRandomPirate("loloss", {from: accounts[1]});
+      await instance.createRandomPirate("pepe", {from: accounts[2]});
+      let len = await instance.getPiratesLenght.call();
+      console.log(len);
+      //return instance.attack(0,1, {from: accounts[1]});
+      
+    }).then(function(value) {
+      console.log(value);
+    });*/
+    //const RefundablePresale = artifacts.require('RefundablePresale.sol')
+    //const MyPlubitToken = artifacts.require('MyPlubitToken.sol')
+    this.token  = await ownership.new();
+    await this.token.createRandomPirate("loloss", {from: accounts[1]});
+    await this.token.createRandomPirate("pepe", {from: accounts[2]});
+    let len = await this.token.getPiratesLenght.call();
+    console.log(len);
+    console.log("aaaaaaaaaaaaaaaa");
+    assert.equal(2, len);
+  });
 
 })
