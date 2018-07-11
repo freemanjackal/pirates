@@ -40,7 +40,7 @@
         return text;
       }
       function startApp() {
-        var cryptoPiratesAddress = "0xb8f871857bec65cf592083833bfa76d0a1dc1c12";//"YOUR_CONTRACT_ADDRESS";
+        var cryptoPiratesAddress = "0xaedb0756f74cdd0a29fc13279e0ffb31c0b2f879";//"YOUR_CONTRACT_ADDRESS";
         var cryptoPiratesABI = [
       {
           "constant": false,
@@ -494,7 +494,7 @@
               </ul>
             </div>`);
           });*/
-          var pirate = getPirateDetails(id,test);
+           getPirateDetails(id,test);
             console.log("dddddddddddddd");
             // Using ES6's "template literals" to inject variables into the HTML.
             // Append each one to our #pirates div
@@ -582,7 +582,7 @@
             //displayPirates(result);
             console.log("getPirateDetails");
             console.log(result);
-            return result;
+            callback(result);
           }
           if(err){
             //displayPirates(result);
