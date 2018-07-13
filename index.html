@@ -204,6 +204,7 @@
       var cryptoPirates;
       var userAccount;
       var myPirate;
+      var atack;// event attacks
       $('#create_pirate').click(function(){
         
         
@@ -229,7 +230,7 @@
       }
       function startApp() {
         //change contract address
-        var cryptoPiratesAddress = "0x841c030082577aa422bfd20d924389236997f11b";//"YOUR_CONTRACT_ADDRESS";
+        var cryptoPiratesAddress = "0x149644143399cef2490b913b0ebba470f9d89c8b";//"YOUR_CONTRACT_ADDRESS";
         
         web3js.eth.defaultAccount = web3js.eth.accounts[0];
        // alert(web3js.eth.defaultAccount);
@@ -316,7 +317,7 @@ toastr.options = {
   "hideMethod": "fadeOut"
 }
       function notification(type, message){
-          toastr["success"]("Pirate created succesfully!");
+          toastr[type](message);
       }
 
       function createRandomPirate(name) {
@@ -326,9 +327,17 @@ toastr.options = {
         // Send the tx to our contract:
         cryptoPirates.createRandomPirate(name, { from: userAccount, gas: 3000000}, function(err, result){ 
           if(!err){
+            console.log("ss");
             notification("success","Pirate created succesfully!");
             $("#createPirateModal").modal("hide");
+            getPirate(userAccount);
             getPirates();
+          }else{
+            console.log("error");
+            $("#createPirateModal").modal("hide");
+            ///toastr["error"]("Are you the six fingered man?")
+
+            notification("error","You already have a pirate or there are connections problems!");
           }
 
         });
@@ -395,6 +404,15 @@ toastr.options = {
         //acounts[0] is the default account
         getPirate(userAccount);
         getPirates();
+        atack = cryptoPirates.attackResult({'_pirateId':myPirate}, {fromBlock: 0, toBlock: 'latest'});
+        atack.watch(function(error, result){
+          console.log(JSON.parse(result.args.result));
+          if(JSON.parse(result.args.result) === 0){
+              notification("error", "You lost during the attack...")
+          }else{
+              notification("success", "You won the attack")
+          }
+      });
 
       })
 
@@ -438,12 +456,10 @@ toastr.options = {
           if(err){console.log("error")
           }
 
-        
       });
-        
-          
 
       }
+      
 
 //need to change the abi every time it is compiled a new version of the contract
       var cryptoPiratesABI = [
@@ -666,12 +682,7 @@ toastr.options = {
         }
       ],
       "name": "attack",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
+      "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
@@ -732,6 +743,23 @@ toastr.options = {
         }
       ],
       "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_pirateId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "result",
+          "type": "uint256"
+        }
+      ],
+      "name": "attackResult",
       "type": "event"
     },
     {
