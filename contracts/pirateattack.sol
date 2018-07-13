@@ -7,6 +7,7 @@ contract PirateAttack is PirateHelper {
   uint randNonce = 0;
   uint attackVictoryProbability = 70;
 
+  event attackResult(uint indexed _pirateId, uint result);
   function randMod(uint _modulus) internal returns(uint) {
     randNonce++;
     return uint(keccak256(now, msg.sender, randNonce)) % _modulus;
@@ -20,12 +21,18 @@ contract PirateAttack is PirateHelper {
       myPirate.winCount++;
       myPirate.level++;
       enemyPirate.lossCount++;
-      feedAndMultiply(_pirateId, enemyPirate.dna, "pirate attack");
+      _triggerCooldown(myPirate);
+      emit attackResult(_pirateId, 1);
+      //stealPirate(_pirateId, _targetId, "win");
     } else {
       myPirate.lossCount++;
       enemyPirate.winCount++;
       _triggerCooldown(myPirate);
+      emit attackResult(_pirateId, 0);
+      //if you lose when you attack you wont be stealed too much like when youre under atteack
+      //stealPirate(_targetId, _pirateId, "lose");
     }
+
   }
 }
 

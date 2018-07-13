@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>CryptoPirates front-end</title>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--script language="javascript" type="text/javascript" src="web3.min.js"></script-->
+    <script language="javascript" type="text/javascript" src="cryptopirates_abi.js"></script>
+  </head>
+  <body>
+    <div id="txStatus"></div>
+    <div id="pirates"></div>
+    <button id="createpirate" type="button">create</button>
+    <button id="details" type="button">List pirates</button>
+    <button id="all_pirates" type="button">pirates</button>
+    <br>
+    <input type="text" >
+    <button id="attack" type="button">attack</button>
+    <script>
+
+      //https://github.com/ethereum/wiki/wiki/JavaScript-API#getting-started
+      var cryptoPirates;
+      var userAccount;
+      $('#createpirate').click(function(){
+        //balance = web3js.eth.getBalance(web3js.eth.accounts[0]);
+        
+        var version = web3js.version.api;
+        var gas = web3js.eth.gasPrice;
+       createRandomPirate(makeName());
+      })
+      $('#details').click(function(){
+        //alert(userAccount);
+        var data = getPiratesByOwner(web3js.eth.accounts[1]);
+        //console.log(data);
+      })
+      $('#all_pirates').click(function(){
+        getPirates();
+      })
+      $('#attack').click(function(){
+        attack();
+      })
+      function makeName() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (var i = 0; i < 5; i++)
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
+      }
+      function startApp() {
+        var cryptoPiratesAddress = "0xac3cca5b97fc3acd5890852f65439ba4d12a3273";//"YOUR_CONTRACT_ADDRESS";
+        var cryptoPiratesABI = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_pirateId",
+          "type": "uint256"
+        }
+      ],
+      "name": "levelUp",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_pirateId",
+          "type": "uint256"
+        },
+        {
+          "name": "_kittyId",
+          "type": "uint256"
+        }
+      ],
+      "name": "feedOnKitty",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "getPiratesByOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "withdraw",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getPiratesLenght",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_address",
+          "type": "address"
+        }
+      ],
+      "name": "setKittyContractAddress",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_pirateId",
+          "type": "uint256"
+        },
+        {
+          "name": "_newDna",
+          "type": "uint256"
+        }
+      ],
+      "name": "changeDna",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "pirates",
+      "outputs": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "dna",
+          "type": "uint256"
+        },
+        {
+          "name": "level",
+          "type": "uint32"
+        },
+        {
+          "name": "readyTime",
+          "type": "uint32"
+        },
+        {
+          "name": "winCount",
+          "type": "uint16"
+        },
+        {
+          "name": "lossCount",
+          "type": "uint16"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_pirateId",
+          "type": "uint256"
+        },
+        {
+          "name": "_newName",
+          "type": "string"
+        }
+      ],
+      "name": "changeName",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setLevelUpFee",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_name",
+          "type": "string"
+        }
+      ],
+      "name": "createRandomPirate",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "pirateToOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_pirateId",
+          "type": "uint256"
+        },
+        {
+          "name": "_targetId",
+          "type": "uint256"
+        }
+      ],
+      "name": "attack",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "_approved",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "pirateId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "dna",
+          "type": "uint256"
+        }
+      ],
+      "name": "NewPirate",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "name": "_balance",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ownerOf",
+      "outputs": [
+        {
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "takeOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
+        web3js.eth.defaultAccount = web3js.eth.accounts[0];
+       // alert(web3js.eth.defaultAccount);
+        cryptoPirates  = web3js.eth.contract(cryptoPiratesABI).at(cryptoPiratesAddress);
+        //cryptoPirates = web3js.eth.Contract(cryptoPiratesABI, cryptoPiratesAddress);
+        var accountInterval = setInterval(function() {
+          // Check if account has changed
+          if (web3js.eth.accounts[0] !== userAccount) {
+            userAccount = web3js.eth.accounts[0];
+            // Call a function to update the UI with the new account
+           // pirate = getPiratesByOwner(userAccount);
+            //displayPirates(pirate);
+            //return cryptoPirates.getPiratesByOwner(userAccount).call()
+          }
+        }, 1000);
+
+        // Start here
+      }
+   // var Web3 = require('web3');
+      function displayPirates(ids) {
+        $("#pirates").empty();
+        for (id of ids) {
+          console.log(id);
+          // Look up pirate details from our contract. Returns a `pirate` object
+         /*var pirate = getPirateDetails(id, function(pirate){
+            console.log("dddddddddddddd");
+            // Using ES6's "template literals" to inject variables into the HTML.
+            // Append each one to our #pirates div
+            $("#pirates").append(`<div class="pirate">
+              <ul>
+                <li>Name: ${pirate.name}</li>
+                <li>DNA: ${pirate.dna}</li>
+                <li>Level: ${pirate.level}</li>
+                <li>Wins: ${pirate.winCount}</li>
+                <li>Losses: ${pirate.lossCount}</li>
+                <li>Ready Time: ${pirate.readyTime}</li>
+              </ul>
+            </div>`);
+          });*/
+           getPirateDetails(id,test);
+            console.log("dddddddddddddd");
+            // Using ES6's "template literals" to inject variables into the HTML.
+            // Append each one to our #pirates div
+           /* $("#pirates").append(`<div class="pirate">
+              <ul>
+                <li>Name: ${pirate.name}</li>
+                <li>DNA: ${pirate.dna}</li>
+                <li>Level: ${pirate.level}</li>
+                <li>Wins: ${pirate.winCount}</li>
+                <li>Losses: ${pirate.lossCount}</li>
+                <li>Ready Time: ${pirate.readyTime}</li>
+              </ul>
+            </div>`);*/
+          //});
+        }
+      }
+      function test(pirate, id){
+        var ts = Math.round((new Date()).getTime() / 1000);
+          $("#pirates").append(`<div class="pirate">
+              <ul>
+                <li>Name: ${pirate[0]}</li>
+                <li>DNA: ${JSON.parse(pirate[1])}</li>
+                <li>Level: ${JSON.parse(pirate[2])}</li>
+                <li>Ready Time: ${JSON.parse(pirate[3])}</li>
+                <li>Wins: ${JSON.parse(pirate[4])}</li>
+                <li>Losses: ${JSON.parse(pirate[5])}</li>
+                <li>id: ${id}</li>
+              </ul>
+            </div>`);
+      }
+
+      function createRandomPirate(name) {
+        // This is going to take a while, so update the UI to let the user know
+        // the transaction has been sent
+        $("#txStatus").text("Creating new pirate on the blockchain. This may take a while...");
+        // Send the tx to our contract:
+        /*var originalBalance = web3js.eth.getBalance(userAccount).toNumber();
+        alert(originalBalance);*/
+        
+        cryptoPirates.createRandomPirate(name, { from: web3js.eth.accounts[0], gas: 3000000}, function(err, result){ 
+          if(!err)
+            $("#txStatus").text("Successfully created " + name + "!");
+
+        });
+        //return cryptoPirates.createRandomPirate(name, { from: web3js.eth.accounts[0], gas: 3000000})
+        /*.on("receipt", function(receipt) {
+          $("#txStatus").text("Successfully created " + name + "!");
+          // Transaction was accepted into the blockchain, let's redraw the UI
+          getPiratesByOwner(userAccount).then(displayPirates);
+        })
+        .on("error", function(error) {
+          // Do something to alert the user their transaction has failed
+          $("#txStatus").text(error);
+        });*/
+      }
+
+      function feedOnKitty(pirateId, kittyId) {
+        $("#txStatus").text("Eating a kitty. This may take a while...");
+        return cryptoPirates.methods.feedOnKitty(pirateId, KittyId)
+        .send({ from: userAccount })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Ate a kitty and spawned a new Pirate!");
+          getPiratesByOwner(userAccount).then(displayPirates);
+        })
+        .on("error", function(error) {
+          $("#txStatus").text(error);
+        });
+      }
+
+      function levelUp(pirateId) {
+        $("#txStatus").text("Leveling up your pirate...");
+        return cryptoPirates.methods.levelUp(pirateId)
+        .send({ from: userAccount, value: web3.utils.toWei("0.001") })
+        .on("receipt", function(receipt) {
+          $("#txStatus").text("Power overwhelming! Pirate successfully leveled up");
+        })
+        .on("error", function(error) {
+          $("#txStatus").text(error);
+        });
+      }
+
+       function getPirateDetails(id, callback) {
+        cryptoPirates.pirates(id, { from: web3js.eth.accounts[0], gas: 3000000}, function(err, result){ 
+          if(!err){
+            //displayPirates(result);
+            //console.log("getPirateDetails");
+            //console.log(result);
+            callback(result, id);
+          }
+          if(err){
+            //displayPirates(result);
+            console.log("error");
+           //return result;
+          }
+
+
+        });
+       // return cryptoPirates.pirates(id);
+      }
+
+      function pirateToOwner(id) {
+        return cryptoPirates.pirateToOwner(id).call()
+      }
+
+      function getPiratesByOwner(owner) {
+        //alert("hola");
+        //return cryptoPirates.getPiratesByOwner(owner);
+        cryptoPirates.getPiratesByOwner(owner, { from: web3js.eth.accounts[0], gas: 3000000}, function(err, result){ 
+          if(!err){
+            console.log("getPiratesByOwner");
+            console.log(result);
+            displayPirates(result);
+            
+          }
+
+        });
+      }
+
+      window.addEventListener('load', function() {
+
+        // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+        if (typeof web3 !== 'undefined') {
+          // Use Mist/MetaMask's provider
+          web3js = new Web3(web3.currentProvider);
+        } else {
+          // Handle the case where the user doesn't have Metamask installed
+          // Probably show them a message prompting them to install Metamask
+          web3js = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        }
+
+        // Now you can start your app & access web3 freely:
+        startApp()
+
+      })
+
+      function getPirates(){
+       
+        var idpirates = Array();
+        let len = JSON.parse(cryptoPirates.getPiratesLenght( { from: web3js.eth.accounts[0], gas: 3000000}));
+        for(var i=0; i < len; i++){
+            idpirates.push(i);
+        }
+          console.log(idpirates);
+          displayPirates(idpirates);
+
+      }
+
+      function attack(idEnemy){
+        //alert(idEnemy)
+        cryptoPirates.attack(0,1,{ from: web3js.eth.accounts[1], gas: 3000000});
+          
+
+      }
+    </script>
+  </body>
+</html>

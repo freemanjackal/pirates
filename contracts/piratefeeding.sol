@@ -2,17 +2,13 @@ pragma solidity ^0.4.20;
 
 import "./piratefactory.sol";
 
-contract KittyInterface {
+contract PetInterface {
   //delete view
-  function getKitty(uint256 _id) external view returns (
-    bool isGestating,
+  function kidnap(uint256 _id) external view returns (
     bool isReady,
     uint256 cooldownIndex,
     uint256 nextActionAt,
-    uint256 siringWithId,
     uint256 birthTime,
-    uint256 matronId,
-    uint256 sireId,
     uint256 generation,
     uint256 genes
   );
@@ -20,42 +16,42 @@ contract KittyInterface {
 
 contract PirateFeeding is PirateFactory {
 
-  KittyInterface kittyContract;
+  PetInterface petContract;
 
   modifier onlyOwnerOf(uint _pirateId) {
     require(msg.sender == pirateToOwner[_pirateId]);
     _;
   }
 
-  function setKittyContractAddress(address _address) external onlyOwner {
-    kittyContract = KittyInterface(_address);
+  function setPetContractAddress(address _address) external onlyOwner {
+    petContract = PetInterface(_address);
   }
 
   function _triggerCooldown(Pirate storage _pirate) internal {
     _pirate.readyTime = uint32(now + cooldownTime);
   }
 
-//delete view
   function _isReady(Pirate storage _pirate) internal view returns (bool) {
       return (_pirate.readyTime <= now);
   }
-
-  function feedAndMultiply(uint _pirateId, uint _targetDna, string _species) internal onlyOwnerOf(_pirateId) {
+//it would be great to set a function to kidnap pirate's pets---kidnap kitties would be a great stealPirate
+//obviuosly without any real effect so it could be designed another fungible tokens to be pirates pets
+//that could be kidnaped and ask a ransom for them
+//it could then  been designed a token for the game to steal from pirates and to pay ransoms
+  function stealPirate(uint _pirateId, uint _pirateIdEnemy, string typeAttack) internal onlyOwnerOf(_pirateId) {
     Pirate storage myPirate = pirates[_pirateId];
     require(_isReady(myPirate));
-    _targetDna = _targetDna % dnaModulus;
-    uint newDna = (myPirate.dna + _targetDna) / 2;
-    if (keccak256(_species) == keccak256("kitty")) {
-      newDna = newDna - newDna % 100 + 99;
-    }
-    _createPirate("NoName", newDna);
+    
+    
+    /*if (keccak256(_species) == keccak256("attack")) {
+      
+    }*/
     _triggerCooldown(myPirate);
   }
 
-  function feedOnKitty(uint _pirateId, uint _kittyId) public {
-    uint kittyDna;
-    (,,,,,,,,,kittyDna) = kittyContract.getKitty(_kittyId);
-    feedAndMultiply(_pirateId, kittyDna, "kitty");
+  function _kiddnapPet(uint _pirateId, uint _kittyId) internal {
+    uint petDna;
+    (,,,,,petDna) = petContract.kidnap(_kittyId);
   }
 }
 

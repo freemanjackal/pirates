@@ -99,8 +99,9 @@ contract('ownership', function(accounts) {
     await this.token.createRandomPirate("loloss", {from: accounts[1]});
     await this.token.createRandomPirate("pepe", {from: accounts[2]});
     let len = await this.token.getPiratesLenght.call();
-    console.log(len);
+    console.log(JSON.parse(len));
     console.log("aaaaaaaaaaaaaaaa");
+    await this.token.attack(1,0, {from: accounts[2]});
     assert.equal(2, len);
   });
 
