@@ -230,7 +230,7 @@
       }
       function startApp() {
         //change contract address
-        var cryptoPiratesAddress = "0x149644143399cef2490b913b0ebba470f9d89c8b";//"YOUR_CONTRACT_ADDRESS";
+        var cryptoPiratesAddress = "0x299aa27d7c1e5885fa0d5b064efe2ead228ad182";//"YOUR_CONTRACT_ADDRESS";
         
         web3js.eth.defaultAccount = web3js.eth.accounts[0];
        // alert(web3js.eth.defaultAccount);
@@ -258,11 +258,11 @@
       }
 
       function selectAccount(account){
-        alert(account);
         userAccount = web3js.eth.accounts[account];
         getPirate(userAccount);
         getPirates();
         $('.my-4').text(`Working account: ${account}`)
+        watchAttackEvent()
       }
       function test(pirate, id){
         //var ts = Math.round((new Date()).getTime() / 1000);
@@ -404,17 +404,25 @@ toastr.options = {
         //acounts[0] is the default account
         getPirate(userAccount);
         getPirates();
-        atack = cryptoPirates.attackResult({'_pirateId':myPirate}, {fromBlock: 0, toBlock: 'latest'});
+        watchAttackEvent()
+
+      })
+
+      function watchAttackEvent(){
+          atack = cryptoPirates.attackResult({'_pirateId':myPirate}, {fromBlock: 0, toBlock: 'latest'});
+
         atack.watch(function(error, result){
           console.log(JSON.parse(result.args.result));
           if(JSON.parse(result.args.result) === 0){
+            console.log('lost')
               notification("error", "You lost during the attack...")
           }else{
+            console.log('won')
               notification("success", "You won the attack")
           }
       });
 
-      })
+      }
 
       function getPirate(owner){
           cryptoPirates.getPiratesByOwner(owner, { from: userAccount, gas: 3000000}, function(err, result){ 
@@ -889,7 +897,7 @@ toastr.options = {
       "stateMutability": "nonpayable",
       "type": "function"
     }
-  ];
+  ]
     </script>
   </body>
 
